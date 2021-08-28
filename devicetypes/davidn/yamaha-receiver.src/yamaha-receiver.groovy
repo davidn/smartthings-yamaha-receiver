@@ -46,14 +46,14 @@ def yamahaCommand(cmd, body) {
 }
 
 def on() {
-  log.debug "on"
+  log.debug "on()"
   return [
     yamahaCommand("PUT", "<Power_Control><Power>On</Power></Power_Control>"),
     yamahaCommand("GET", "<Basic_Status>GetParam</Basic_Status>")
   ]
 }
 def off() {
-  log.debug "off"
+  log.debug "off()"
   return [
     yamahaCommand("PUT", "<Power_Control><Power>Standby</Power></Power_Control>"),
     yamahaCommand("GET", "<Basic_Status>GetParam</Basic_Status>")
@@ -61,7 +61,7 @@ def off() {
 }
 
 def setMute(state) {
-  log.debug "set_mute $state"
+  log.debug "setMute($state)"
   def set = state == "muted" ? "On" : "Off"
   return [
     yamahaCommand("PUT", "<Volume><Mute>$set</Mute></Volume>"),
@@ -70,17 +70,17 @@ def setMute(state) {
 }
 
 def mute() {
-  log.debug "mute"
+  log.debug "mute()"
   return setMute("mute")
 }
 
 def unmute() {
-  log.debug "unmute"
+  log.debug "unmute()"
   return setMute("unmute")
 }
 
 def setVolume(volume) {
-  log.debug "setVolume $volume"
+  log.debug "setVolume($volume)"
   def vol_db = volume/2 - 50
   return [
     yamahaCommand("PUT", "<Volume><Lvl>$vol_db</Lvl><Exp>1</Exp><Unit>dB</Unit></Volume>"),
@@ -89,22 +89,22 @@ def setVolume(volume) {
 }
 
 def volumeUp() {
-  log.debug "mute"
+  log.debug "volumeUp()"
   return setMute("mute")
 }
 
 def volumeDown() {
-  log.debug "unmute"
+  log.debug "volumeDown()"
   return setMute("unmute")
 }
 
 def poll() {
-  log.debug "polling"
+  log.debug "poll()"
   return yamahaCommand("GET", "<Basic_Status>GetParam</Basic_Status>")
 }
 
 def parse(description) {
-  log.debug "parse"
+  log.debug "parse()"
   def msg = parseLanMessage(description)
   log.debug msg
   

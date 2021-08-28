@@ -6,6 +6,10 @@ metadata {
     capability "Audio Mute"
     capability "Audio Volume"
   }
+  preferences {
+    input name: "zone", type: "enum", title: "Zone", options: ["Main_Zone", "Zone_2", "Zone_3", "Zone_4"], description: "Choose Zone", required: true,
+          displayDuringSetup: true
+}
 }
 
 private getHostAddress() {
@@ -38,7 +42,7 @@ def yamahaCommand(cmd, body) {
   return new physicalgraph.device.HubAction(
     method: "POST",
     path: "/YamahaRemoteControl/ctrl",
-    body: "<YAMAHA_AV cmd=\"$cmd\"><Main_Zone>$body</Main_Zone></YAMAHA_AV>",
+    body: "<YAMAHA_AV cmd=\"$cmd\"><$zone>$body</$zone></YAMAHA_AV>",
     headers: [
       HOST: getHostAddress()
     ]
@@ -108,24 +112,41 @@ def parse(description) {
   def msg = parseLanMessage(description)
   log.debug msg
   
+  def zone = ""
+  switch ($zone) {
+    case "Zone_2":
+      zone = msg.xml.Zone_2
+      break;
+    case "Zone_3":
+      zone = msg.xml.Zone_3
+      break;
+    case "Zone_4":
+      zone = msg.xml.Zone_4
+      break;
+    case "Main_Zone":
+    default:
+      zone = msg.xml.Main_Zone
+      break;
+  }
+  
   def events = []
   
-  def power_state = msg.xml.Main_Zone.Basic_Status.Power_Control.Power.text()
+  def power_state = zone.Basic_Status.Power_Control.Power.text()
   if (power_state != "") {
     def switch_attr = power_state == 'On'? 'on':'off'
     log.debug "setting switch state to $switch_attr"
     events.add(createEvent(name:'switch',value: switch_attr))
   }
   
-  def mute_state = msg.xml.Main_Zone.Basic_Status.Volume.Mute.text()
+  def mute_state = zone.Basic_Status.Volume.Mute.text()
   if (mute_state != "") {
     def mute_attr = mute_state == 'On'? 'muted':'unmuted'
     log.debug "setting mute state to $mute_attr"
     events.add(createEvent(name:'mute',value: mute_attr))
   }
   
-  def vol_val = msg.xml.Main_Zone.Basic_Status.Volume.Lvl.Val.text()
-  def vol_exp = msg.xml.Main_Zone.Basic_Status.Volume.Lvl.Exp.text()
+  def vol_val = zone.Basic_Status.Volume.Lvl.Val.text()
+  def vol_exp = zone.Basic_Status.Volume.Lvl.Exp.text()
   if (vol_val != "" && vol_exp != "") {
     def vol_db = vol_val.toInteger()/Math.pow(10, vol_exp.toInteger())
     // Treat -50dB as 0% and 0dB as 100%. Lock to that that range. dB fixed as 2% to follow perception

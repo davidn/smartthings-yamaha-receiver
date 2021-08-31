@@ -155,7 +155,7 @@ def parse(description) {
   if (vol_val != "" && vol_exp != "") {
     def vol_db = vol_val.toInteger()/Math.pow(10, vol_exp.toInteger())
     // Treat -50dB as 0% and 0dB as 100%. Lock to that that range. dB fixed as 2% to follow perception
-    def vol_percent = Math.min(100, Math.max(0, (vol_db+50)*2))
+    def vol_percent = Math.round(Math.min(100, Math.max(0, (vol_db+50)*2)))
     log.debug "setting volume to $vol_percent"
     events.add(createEvent(name:'volume',value: vol_percent))
   }

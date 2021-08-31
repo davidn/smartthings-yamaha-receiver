@@ -9,7 +9,7 @@ metadata {
   preferences {
     input name: "zone", type: "enum", title: "Zone", options: ["Main_Zone", "Zone_2", "Zone_3", "Zone_4"], description: "Choose Zone", required: true,
           displayDuringSetup: true
-}
+  }
 }
 
 private getHostAddress() {
@@ -38,11 +38,15 @@ private String convertHexToIP(hex) {
     return [convertHexToInt(hex[0..1]),convertHexToInt(hex[2..3]),convertHexToInt(hex[4..5]),convertHexToInt(hex[6..7])].join(".")
 }
 
+private String zoneWithDefault() {
+  return $zone ?: "Main_Zone";
+}
+
 def yamahaCommand(cmd, body) {
   return new physicalgraph.device.HubAction(
     method: "POST",
     path: "/YamahaRemoteControl/ctrl",
-    body: "<YAMAHA_AV cmd=\"$cmd\"><$zone>$body</$zone></YAMAHA_AV>",
+    body: "<YAMAHA_AV cmd=\"$cmd\"><" + zoneWithDefault() + ">$body</" + zoneWithDefault() + "></YAMAHA_AV>",
     headers: [
       HOST: getHostAddress()
     ]
@@ -113,7 +117,7 @@ def parse(description) {
   log.debug msg
   
   def zone = ""
-  switch ($zone) {
+  switch (zoneWithDefault()) {
     case "Zone_2":
       zone = msg.xml.Zone_2
       break;

@@ -89,9 +89,10 @@ def unmute() {
 
 def setVolume(volume) {
   log.debug "setVolume($volume)"
-  def vol_db = volume/2 - 50
+  // reverse of calculation in in poll()
+  def vol_db = volume*5 - 500
   return [
-    yamahaCommand("PUT", "<Volume><Lvl>$vol_db</Lvl><Exp>1</Exp><Unit>dB</Unit></Volume>"),
+    yamahaCommand("PUT", "<Volume><Lvl><Val>$vol_db</Val><Exp>1</Exp><Unit>dB</Unit></Lvl></Volume>"),
     yamahaCommand("GET", "<Basic_Status>GetParam</Basic_Status>")
   ]
 }

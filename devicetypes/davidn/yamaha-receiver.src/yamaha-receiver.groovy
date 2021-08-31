@@ -79,12 +79,12 @@ def setMute(state) {
 
 def mute() {
   log.debug "mute()"
-  return setMute("mute")
+  return setMute("muted")
 }
 
 def unmute() {
   log.debug "unmute()"
-  return setMute("unmute")
+  return setMute("unmuted")
 }
 
 def setVolume(volume) {
